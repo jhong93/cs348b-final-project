@@ -1,0 +1,210 @@
+LookAt 72 11 35.5   95 18 100   0 1 0
+Camera "perspective" "float fov" 105
+
+Film "image" "string filename" ["atmosphere.exr"]
+             "integer xresolution" [3840] "integer yresolution" [2160]
+
+PixelFilter "gaussian" "float xwidth" 1.5 "float ywidth" 1.5
+
+Sampler "02sequence" "integer pixelsamples" 128
+
+Integrator "bdpt" "integer maxdepth" 8
+           "string lightsamplestrategy" "spatial"
+
+# Atmosphere
+MakeNamedMedium "atmosphere"
+                "string type" "homogeneous"
+                "color sigma_a" [0.005 0.005 0.005]
+                "color sigma_s" [0.001 0.001 0.001]
+MediumInterface "" "atmosphere"
+
+WorldBegin
+
+# Volcano scene
+AttributeBegin
+  Texture "volcano_rock" "spectrum" "imagemap"
+          "string filename" "assets/rock2.png"
+  Texture "volcano_bump" "float" "imagemap"
+          "string filename" "assets/rock_bump.png"
+  Material "uber" "texture Kd" "volcano_rock"
+           "texture bumpmap" "volcano_bump"
+  Include "volcano.pbrt"
+AttributeEnd
+
+AttributeBegin
+  Texture "volcano_rock" "spectrum" "imagemap"
+          "string filename" "assets/rock2.png"
+  Texture "volcano_bump" "float" "fbm"
+  Material "uber" "texture Kd" "volcano_rock" "rgb Kr" [0.25 0.25 0.25]
+           "texture bumpmap" "volcano_bump"
+  Include "rock.pbrt"
+AttributeEnd
+
+AttributeBegin
+  Texture "volcano_rock" "spectrum" "imagemap"
+          "string filename" "assets/rock2.png"
+  Texture "volcano_bump" "float" "fbm"
+  Material "uber" "texture Kd" "volcano_rock"
+           "texture bumpmap" "volcano_bump"
+  Include "lava_rock.pbrt"
+AttributeEnd
+
+AttributeBegin
+  Texture "lava1" "spectrum" "imagemap"
+          "string filename" "assets/lava_tile.png"
+  Texture "lava2" "spectrum" "imagemap"
+          "string filename" "assets/lava2.png"
+          "float vscale" 50 "float uscale" 50
+  Texture "lava" "spectrum" "mix"
+          "texture tex1" "lava1" "texture tex2" "lava2"
+          "float amount" 0.7
+
+  AttributeBegin
+    AreaLightSource "diffuse" "rgb L" [ 80 20 0 ] "bool twosided" "true"
+    Material "matte" "texture Kd" "lava"
+    Include "lava_ground.pbrt"
+  AttributeEnd
+
+  AttributeBegin
+    Translate 0 0.05 0
+    Texture "lava_bump" "float" "fbm"
+    Material "glass" "rgb Kr" [0.2 0.2 0.2] "texture Kt" "lava"
+             "texture bumpmap" "lava_bump"
+    Include "lava_ground.pbrt"
+  AttributeEnd
+AttributeEnd
+
+AttributeBegin
+  Translate 0 0.15 0
+  Material "glass" "rgb Kr" [0.2 0.2 0.2]
+           "float uroughness" 0.02 "float vroughness" 0.02
+  Include "lava_ground.pbrt"
+AttributeEnd
+
+AttributeBegin
+  Translate 0 0.25 0
+  Material "glass" "rgb Kr" [0.1 0.1 0.1]
+           "float uroughness" 0.02 "float vroughness" 0.02
+  Include "lava_ground.pbrt"
+AttributeEnd
+
+AttributeBegin
+  AreaLightSource "diffuse" "rgb L" [ 0.7 0.05 0 ] "bool twosided" "true"
+  Texture "lava1" "spectrum" "imagemap"
+          "string filename" "assets/lava_tile.png"
+          "string mapping" "spherical"
+  Texture "lava2" "spectrum" "imagemap"
+          "string filename" "assets/lava2.png"
+  Texture "lava" "spectrum" "mix"
+          "texture tex1" "lava1" "texture tex2" "lava2"
+          "float amount" 0.7
+  Texture "lava_bump" "float" "fbm"
+          "integer octaves" 8
+  Material "matte" "texture Kd" "lava"
+           "texture bumpmap" "lava_bump"
+  Include "lava_left.pbrt"
+AttributeEnd
+
+AttributeBegin
+  AreaLightSource "diffuse" "rgb L" [ 0.7 0.05 0 ] "bool twosided" "true"
+  Texture "lava1" "spectrum" "imagemap"
+          "string filename" "assets/lava_tile.png"
+          "string mapping" "spherical"
+  Texture "lava2" "spectrum" "imagemap"
+          "string filename" "assets/lava2.png"
+  Texture "lava" "spectrum" "mix"
+          "texture tex1" "lava1" "texture tex2" "lava2"
+          "float amount" 0.7
+  Texture "lava_bump" "float" "fbm"
+          "integer octaves" 8
+  Material "matte" "texture Kd" "lava"
+           "texture bumpmap" "lava_bump"
+  Include "lava_right.pbrt"
+AttributeEnd
+
+# Background image
+AttributeBegin
+  Texture "clouds" "spectrum" "imagemap"
+          "string filename" "assets/clouds.png"
+          "float scale" 0.5
+  Material "matte" "texture Kd" "clouds"
+  Rotate 23 0 1 0
+  Translate 0 500 400
+  Scale 0.6 0.6 1
+  Shape "trianglemesh"
+    "integer indices" [0 1 2 0 2 3]
+    "point P" [-2216 -1405 0   2216 -1405 0   2216 1405 0   -2216 1405 0]
+    "float st" [ 0 0   1 0    1 1   0 1 ]
+AttributeEnd
+
+# Foreground dinosaur
+AttributeBegin
+  Texture "stegosaurus" "spectrum" "imagemap"
+          "string filename" "assets/StegosaurusBaseColourMapEyesFixed.tga"
+          "float scale" 1.25
+  Material "matte" "texture Kd" "stegosaurus"
+  Translate 68 9.7 47
+  Scale 0.05 0.05 0.05
+  Rotate 5 1 0 0
+  Rotate 2.5 0 1 0
+  Include "stegosaurus.pbrt"
+AttributeEnd
+
+# Flying dinosaurs
+AttributeBegin
+  Texture "pterodactyl" "spectrum" "imagemap"
+          "string filename" "assets/pterodactyl.tga"
+  Material "matte" "texture Kd" "pterodactyl"
+
+  AttributeBegin
+    Translate 200 70 90
+    Rotate -15 1 0 0
+    Rotate 190 0 0 1
+    Rotate 45 0 1 0
+    Scale 0.15 0.15 0.15
+    Include "pterodactyl.pbrt"
+  AttributeEnd
+
+  AttributeBegin
+    Translate 200 60 100
+    Rotate -15 1 0 0
+    Rotate 190 0 0 1
+    Rotate 45 0 1 0
+    Scale 0.15 0.15 0.15
+    Include "pterodactyl.pbrt"
+  AttributeEnd
+
+  AttributeBegin
+    Translate 40 50 90
+    Rotate -120 0 1 0
+    Rotate 10 0 0 1
+    Rotate -90 1 0 0
+    Scale 0.15 0.15 0.15
+    Include "pterodactyl.pbrt"
+  AttributeEnd
+
+  AttributeBegin
+    Translate 15 45 100
+    Rotate -120 0 1 0
+    Rotate 10 0 0 1
+    Rotate -90 1 0 0
+    Scale 0.15 0.15 0.15
+    Include "pterodactyl.pbrt"
+  AttributeEnd
+AttributeEnd
+
+# Foreground light
+AttributeBegin
+  Translate 50 50 0
+  AreaLightSource "diffuse" "rgb L" [25 25 25]
+  Rotate 90 0 1 0
+  Shape "sphere" "float radius" [10]
+AttributeEnd
+
+# Environment map
+AttributeBegin
+  LightSource "infinite" "string mapname" "assets/cloudy.exr"
+              "rgb L" [1 1 1]
+AttributeEnd
+
+WorldEnd
